@@ -1,7 +1,7 @@
 export default function Home() {
   return (
-    <main className="bg-gray-300 h-screen flex items-center justify-center p-5 ">
-      <div className="bg-white w-full p-6 shadow-lg rounded-2xl">
+    <main className="bg-gray-100 h-screen flex items-center justify-center p-5 ">
+      <div className="bg-white w-full p-6 shadow-lg rounded-3xl max-w-screen-sm ">
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
             <span className="text-gray-600 font-semibold -mb-1">
@@ -12,7 +12,7 @@ export default function Home() {
           <div className="size-12 rounded-full bg-orange-400" />
         </div>
         <div className="my-2 flex items-center gap-2">
-          <span className="bg-green-400 text-white uppercase px-2.5 py-1.5 text-xs font-medium rounded-full">
+          <span className="bg-green-400 text-white uppercase px-2.5 py-1.5 text-xs font-medium rounded-full hover:bg-green-500 hover:cursor-pointer hover:scale-125 transition">
             Today
           </span>
           <span>9:30-10:30</span>
