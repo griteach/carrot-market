@@ -7,6 +7,6 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {},
-  plugins: [],
+  plugins: [require("daisyui"), require("@tailwindcss/forms")],
 };
 export default config;
