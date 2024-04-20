@@ -1,7 +1,7 @@
 "use client";
 
-import FormButton from "@/components/form-btn";
-import FormInput from "@/components/form-input";
+import Button from "@/components/button";
+import FormInput from "@/components/input";
 import SocialLogin from "@/components/social-login";
 import { useFormState } from "react-dom";
 import { handleForm } from "./actions";
@@ -22,7 +22,7 @@ export default function LogIn() {
           placeholder="Password"
           required
         />
-        <FormButton text="Log in" />
+        <Button text="Log in" />
       </form>
       <SocialLogin />
     </div>

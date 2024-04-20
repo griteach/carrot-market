@@ -1,5 +1,5 @@
-import FormButton from "@/components/form-btn";
-import FormInput from "@/components/form-input";
+import Button from "@/components/button";
+import FormInput from "@/components/input";
 import SocialLogin from "@/components/social-login";
 
 export default function SMSLogin() {
@@ -23,7 +23,7 @@ export default function SMSLogin() {
           required
           errors={[]}
         />
-        <FormButton text="Verify" loading={false} />
+        <Button text="Verify" loading={false} />
       </form>
     </div>
   );

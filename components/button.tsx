@@ -1,11 +1,11 @@
 "use client";
 import { useFormStatus } from "react-dom";
 
-interface FormButtonProps {
+interface ButtonProps {
   text: string;
 }
 
-export default function FormButton({ text }: FormButtonProps) {
+export default function Button({ text }: ButtonProps) {
   //useFormStatus는 자신의 부모 요소를 찾으려고 한다.
   //자식 요소에서 사용하는 hook이다.
   //따라서 FormButton을 가지고 있는 부모의 요소에서 action의 진행과정을 가져올 수 있다.
