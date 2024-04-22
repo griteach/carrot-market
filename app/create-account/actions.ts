@@ -5,7 +5,12 @@ import {
   PASSWORD_REGEX,
   PASSWORD_REGEX_ERROR,
 } from "@/lib/constants";
+import db from "@/lib/db";
 import { z } from "zod";
+import bcrypt from "bcrypt";
+
+import { redirect } from "next/navigation";
+import getSession from "@/lib/session";
 
 function checkUsername(username: string) {
   return !username.includes("potato");
@@ -20,6 +25,37 @@ function checkPassword({
   return password === confirmPassword;
 }
 
+// const checkUniqueUsername = async (username: string) => {
+//   const user = await db.user.findUnique({
+//     where: {
+//       username,
+//     },
+//     //데이터를 요청할 때 항상 필요한것만 요청하자.
+//     //다시 말해 굳이 많은 양의 데이터를 요청하지 말자는 뜻.
+//     //여기서는 유저가 있는지 확인만 하기때문에 user의 모든 데이터를 가져올필요가 없다.
+//     //따라서 select를 활용해서 id만 가져오고, 이 username이 있는지 없는지만 체크하자.
+//     select: {
+//       id: true,
+//     },
+//   });
+//   return !Boolean(user);
+// };
+
+// const checkUniqueUserEmail = async (email: string) => {
+//   //데이터를 요청할 때 항상 필요한것만 요청하자.
+//   //다시 말해 굳이 많은 양의 데이터를 요청하지 말자는 뜻.
+//   //여기서는 유저가 있는지 확인만 하기때문에 user의 모든 데이터를 가져올필요가 없다.
+//   //따라서 select를 활용해서 id만 가져오고, 이 username이 있는지 없는지만 체크하자.
+//   const user = await db.user.findUnique({
+//     where: {
+//       email,
+//     },
+//     select: {
+//       id: true,
+//     },
+//   });
+//   return !Boolean(user);
+// };
 //유효성 검사 하고 싶은 내용을 일단 설명해 놓자. 설계도 같은거지
 //청사진 같은거
 const usernameSchema = z.string().min(5).max(10);
@@ -36,8 +72,47 @@ const formSchema = z
       .trim()
       .refine(checkUsername, "포테이토는 안됩니다. error"),
     email: z.string().email().toLowerCase(),
-    password: z.string().min(10).regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
+    password: z.string().min(PASSWORD_MIN_LENGTH),
+    // .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
     confirmPassword: z.string().min(PASSWORD_MIN_LENGTH),
+  }) //refine을 오브젝트 전체에 넣을 수 있다. 여러 개의 항목을 동시에 체크하기 위해
+  .superRefine(async ({ username }, ctx) => {
+    const user = await db.user.findUnique({
+      where: {
+        username,
+      },
+      select: {
+        id: true,
+      },
+    });
+    if (user) {
+      ctx.addIssue({
+        code: "custom",
+        message: "이미 사용중인 이름입니다.",
+        path: ["username"],
+        fatal: true,
+      });
+      return z.NEVER;
+    }
+  })
+  .superRefine(async ({ email }, ctx) => {
+    const user = await db.user.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        id: true,
+      },
+    });
+    if (user) {
+      ctx.addIssue({
+        code: "custom",
+        message: "이미 사용중인 email입니다.",
+        path: ["email"],
+        fatal: true,
+      });
+      return z.NEVER;
+    }
   })
   .refine(checkPassword, {
     message: "패스워드가 일치하지 않습니다.",
@@ -53,10 +128,34 @@ export async function createAccount(prevState: any, formData: FormData) {
     confirmPassword: formData.get("confirmPassword"),
   };
 
-  const result = formSchema.safeParse(data);
+  const result = await formSchema.safeParseAsync(data);
   if (!result.success) {
     return result.error.flatten();
+    //실패하면 에러를 리턴
   } else {
-    console.log(result.data);
+    //성공하면 무언가를 해야겠지
+    //check if username is taken
+    //check if the email is already used
+    //hash passowrd
+    const hashedPassword = await bcrypt.hash(result.data.password, 12);
+
+    const user = await db.user.create({
+      data: {
+        username: result.data.username,
+        email: result.data.email,
+        password: hashedPassword,
+      },
+      select: {
+        id: true,
+      },
+    });
+    const session = await getSession();
+
+    session.id = user.id;
+    await session.save();
+    redirect("/profile");
+    //save the user to db (with prisma)
+    //log the user in
+    //redirect "/home"
   }
 }
