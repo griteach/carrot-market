@@ -11,6 +11,7 @@ import bcrypt from "bcrypt";
 
 import { redirect } from "next/navigation";
 import getSession from "@/lib/session";
+import loginSession from "@/lib/login";
 
 function checkUsername(username: string) {
   return !username.includes("potato");
@@ -149,10 +150,7 @@ export async function createAccount(prevState: any, formData: FormData) {
         id: true,
       },
     });
-    const session = await getSession();
-
-    session.id = user.id;
-    await session.save();
+    await loginSession(user.id);
     redirect("/profile");
     //save the user to db (with prisma)
     //log the user in

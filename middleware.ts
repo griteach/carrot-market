@@ -9,6 +9,9 @@ const publicOnlyUrls: Routes = {
   "/login": true,
   "/sms": true,
   "/create-account": true,
+  //여기를 publicOnlyUrl에 등록해서, 깃헙으로 로그인하려는 사용자가 미들웨어에 의해 블락되지 않도록 해주자
+  "/github/complete": true,
+  "/github/start": true,
 };
 
 export async function middleware(request: NextRequest) {
