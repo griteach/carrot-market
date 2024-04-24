@@ -18,6 +18,7 @@ model User {
   github_id  String?    @unique
   avatar     String?
   SMSToken   SMSToken[]
+  Product    Product[]
 }
 
 model SMSToken {
@@ -27,4 +28,17 @@ model SMSToken {
   token      String   @unique
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  title       String
+  price       Float
+  description String
+  photo       String
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
 }
