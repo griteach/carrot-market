@@ -3,39 +3,15 @@ import loginSession from "@/lib/login";
 import getSession from "@/lib/session";
 import { notFound, redirect } from "next/navigation";
 import { NextRequest } from "next/server";
+import { getAccessToken, getEmails, getUserProfile } from "./utils";
 
 export async function GET(request: NextRequest) {
-  const code = request.nextUrl.searchParams.get("code");
-  if (!code) {
-    return new Response(null, {
-      status: 400,
-    });
-  }
-  const accessTokenParams = new URLSearchParams({
-    client_id: process.env.GITHUB_CLIENT_ID!,
-    client_secret: process.env.GITHUB_CLIENT_SECRETS!,
-    code,
-  }).toString();
-  const accessTokenURL = `https://github.com/login/oauth/access_token?${accessTokenParams}`;
-  const accessTokenResponse = await fetch(accessTokenURL, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-    },
-  });
-  const { error, access_token } = await accessTokenResponse.json();
-  if (error) {
-    return new Response(null, {
-      status: 400,
-    });
-  }
-  const userProfileResponse = await fetch("https://api.github.com/user", {
-    headers: {
-      Authorization: `Bearer ${access_token}`,
-    },
-    cache: "no-cache",
-  });
-  const { id, avatar_url, login } = await userProfileResponse.json();
+  const accessTokenResult = await getAccessToken(request);
+
+  const { id, avatar_url, login } = await getUserProfile(accessTokenResult);
+
+  const emailResult = await getEmails(accessTokenResult);
+
   const user = await db.user.findUnique({
     where: {
       github_id: id + "",
@@ -66,6 +42,7 @@ export async function GET(request: NextRequest) {
       github_id: id + "",
       avatar: avatar_url,
       username: modifiedUsername,
+      email: emailResult[0].email,
     },
     select: {
       id: true,
