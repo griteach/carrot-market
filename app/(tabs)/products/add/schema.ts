@@ -20,4 +20,5 @@ export const productSchema = z.object({
   }),
 });
 
+//modal 시작하기
 export type ProductType = z.infer<typeof productSchema>;
