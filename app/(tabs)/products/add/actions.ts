@@ -26,6 +26,8 @@ const productSchema = z.object({
   }),
 });
 
+//_:any는 form의 state를 받아오는것 because we are using 'useStateForm'
+//formData:FormData 는 원래 form의 데이터를 받아오는 것. form안에 name을 갖고 있는 요소들로부터 가져온 데이터
 export async function uploadProduct(_: any, formData: FormData) {
   const data = {
     photo: formData.get("photo"),
@@ -33,11 +35,6 @@ export async function uploadProduct(_: any, formData: FormData) {
     price: formData.get("price"),
     description: formData.get("description"),
   };
-  if (data.photo instanceof File) {
-    const photoData = await data.photo.arrayBuffer();
-    await fs.appendFile(`./public/${data.photo.name}`, Buffer.from(photoData));
-    data.photo = `/${data.photo.name}`;
-  }
 
   const result = productSchema.safeParse(data);
   if (!result.success) {
@@ -66,4 +63,21 @@ export async function uploadProduct(_: any, formData: FormData) {
   }
 
   //   console.log(data);
+}
+
+//CloudFlare에 upload url 얻어내기
+//Account ID, Token이 필요함
+// https://developers.cloudflare.com/images/upload-images/direct-creator-upload/#request-a-one-time-upload-url
+export async function getUploadUrl() {
+  const response = await fetch(
+    `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ID}/images/v2/direct_upload`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
+      },
+    }
+  );
+  const data = await response.json();
+  return data;
 }
