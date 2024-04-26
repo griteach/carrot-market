@@ -1,30 +1,9 @@
 "use server";
 
-import { z } from "zod";
-import fs from "fs/promises";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { redirect } from "next/navigation";
-
-const productSchema = z.object({
-  photo: z.string({
-    required_error: "photo is requried.",
-  }),
-  title: z
-    .string({
-      required_error: "title is requried.",
-    })
-    .max(20),
-  description: z
-    .string({
-      required_error: "description is requried.",
-    })
-    .min(5)
-    .max(50),
-  price: z.coerce.number({
-    required_error: "price is requried.",
-  }),
-});
+import { productSchema } from "./schema";
 
 //_:any는 form의 state를 받아오는것 because we are using 'useStateForm'
 //formData:FormData 는 원래 form의 데이터를 받아오는 것. form안에 name을 갖고 있는 요소들로부터 가져온 데이터

@@ -6,11 +6,19 @@ import { PhotoIcon } from "@heroicons/react/24/solid";
 import { getUploadUrl, uploadProduct } from "./actions";
 import { ChangeEvent, useState } from "react";
 import { useFormState } from "react-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ProductType, productSchema } from "./schema";
 
 export default function AddProduct() {
   const [preview, setPreview] = useState("");
   const [uploadUrl, setUploadUrl] = useState("");
   const [photoId, setPhotoId] = useState("");
+  //react-hook-form with zod
+  const { register, handleSubmit } = useForm<ProductType>({
+    resolver: zodResolver(productSchema),
+  });
+
   const onImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     //target에서 files(이미지)를 가져와서 preview해 주는 코드
     const {
@@ -19,11 +27,16 @@ export default function AddProduct() {
     if (!files) {
       return;
     }
+    //배열일텐데, 일단 하나 골랐으니까 첫 번째거 가져오기
     const file = files[0];
+
+    //preview를 위한 url
+    //브라우저 메모리 어딘가 저장된 이미지 파일의 url을 얻어내기
     const url = URL.createObjectURL(file);
+    //그리고 그걸 preview로 정하기
     setPreview(url);
 
-    //프리뷰가 되면 이걸 CloudFlare의 upload Url을 받아낸다.
+    //그 다음 CloudFlare의 upload Url을 받아낸다.
     const { success, result } = await getUploadUrl();
     if (success) {
       const { id, uploadURL } = result;
@@ -42,6 +55,12 @@ export default function AddProduct() {
 
     //여러개의 input 중에서 photo라는 name인 input을 가져온다.
     const file = formData.get("photo");
+
+    //없으면 리턴
+    //이런걸 해 줘야 타입스크립트가 불평을 하지 않음.
+    //없을수도 있는걸 보여주려고 하면 타입스크립트가 미리 알고 불평을 함.
+    //hey dude, 이건 없을수도 있어 그니까 확실한걸 넣어.
+    //느낌표로 대신할 수도 있고, 아래와 같이 if로 체크를 해도 된다.
     if (!file) {
       return;
     }
@@ -69,8 +88,10 @@ export default function AddProduct() {
   };
 
   const [state, action] = useFormState(interceptAction, null);
+
   return (
     <div>
+      {/* onSubmit에서 onValid는 validation이 끝난 데이터로 호출이 된다. */}
       <form action={action} className="flex flex-col gap-5 p-5">
         <label
           htmlFor="photo"
