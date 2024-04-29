@@ -12,12 +12,12 @@ import { unstable_cache as nextCache, revalidateTag } from "next/cache";
 //따라서 현재 물품 등록자와 현재 접속한 사람이 같은 사람인지 구분해야한다.
 async function getIsOwner(userId: number) {
   //세션을 불러와서 아이디를 꺼낼거야.
-  const session = await getSession();
-  if (session.id) {
-    return session.id === userId; //세션 아이디와 물건의 유저 아이디가 같다면 true
-  } else {
-    return false; //아니면 당연히 false
-  }
+  // const session = await getSession();
+  // if (session.id) {
+  //   return session.id === userId; //세션 아이디와 물건의 유저 아이디가 같다면 true
+  // } else {
+  // }
+  return false; //아니면 당연히 false
 }
 
 async function getProduct(id: number) {
@@ -146,4 +146,12 @@ export default async function ProductDetail({
       </div>
     </div>
   );
+}
+export async function generateStaticParams() {
+  const products = await db.product.findMany({
+    select: {
+      id: true,
+    },
+  });
+  return products.map((product) => ({ id: product.id + "" }));
 }

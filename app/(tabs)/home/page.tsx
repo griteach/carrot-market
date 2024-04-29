@@ -9,6 +9,7 @@ import Link from "next/link";
 const getCachedProducts = nextCache(getInitialProducts, ["home-products"]);
 
 async function getInitialProducts() {
+  console.log("hit");
   const products = await db.product.findMany({
     select: {
       title: true,
@@ -36,7 +37,7 @@ export const metadata = {
 };
 
 export default async function Products() {
-  const initialProducts = await getCachedProducts();
+  const initialProducts = await getInitialProducts();
 
   const revalidate = async () => {
     "use server";
