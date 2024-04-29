@@ -8,15 +8,17 @@ export default async function Modal({ params }: { params: { id: string } }) {
     where: {
       id: Number(params.id),
     },
+
     select: {
       title: true,
       description: true,
       photo: true,
-      // user: {
-      //   select: {
-      //     avatar: true,
-      //   },
-      // },
+      user: {
+        select: {
+          avatar: true,
+          username: true,
+        },
+      },
     },
   });
   return (
@@ -36,9 +38,20 @@ export default async function Modal({ params }: { params: { id: string } }) {
           </div>
         )}
       </div>
-      <div className="flex flex-col w-full pt-8 pl-8 gap-2">
+      <div className="max-w-screen-sm flex flex-col w-full pt-8 pl-8 gap-2">
         <span className="font-bold text-3xl">{product?.title}</span>
         <span className="text-xl">{product?.description}</span>
+
+        <div>
+          {product?.user.avatar ? (
+            <Image
+              width={40}
+              height={40}
+              src={product?.user.avatar}
+              alt={product?.user.username}
+            />
+          ) : null}
+        </div>
       </div>
     </div>
   );

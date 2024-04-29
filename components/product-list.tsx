@@ -64,14 +64,14 @@ export default function ProductList({ initialProducts }: ProductListProps) {
         <ListProducts key={product.id} {...product} />
       ))}
 
-      {!isLastPage ? (
+      {/* {!isLastPage ? (
         <span
           ref={trigger}
           className="text-sm font-semibold bg-orange-500 w-fit mx-auto px-3 py-2 rounded-md hover:opacity-90 active:scale-95"
         >
           {isLoading ? "Loading..." : "Load more"}
         </span>
-      ) : null}
+      ) : null} */}
     </div>
   );
 }

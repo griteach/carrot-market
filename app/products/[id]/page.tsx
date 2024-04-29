@@ -5,6 +5,7 @@ import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { unstable_cache as nextCache, revalidateTag } from "next/cache";
 
 //해당 물품목록이 현재 접속한 사용자의 것이라면 구매할 수 없겠지
 //또는 에디트 버튼이 나와야겠지
@@ -20,6 +21,7 @@ async function getIsOwner(userId: number) {
 }
 
 async function getProduct(id: number) {
+  console.log("Product Hit!!!");
   const product = await db.product.findUnique({
     where: {
       id,
@@ -37,6 +39,34 @@ async function getProduct(id: number) {
   return product;
 }
 
+async function getProductTitle(id: number) {
+  console.log("Title Hit!!!");
+  const product = await db.product.findUnique({
+    where: {
+      id,
+    },
+    //include를 사용해서 product의 유저를 포함하여 가져오자.
+    select: {
+      title: true,
+    },
+  });
+  return product;
+}
+
+const getCachedProduct = nextCache(getProduct, ["product-detail"], {
+  tags: ["product-detail"],
+});
+const getCachedProductTitle = nextCache(getProductTitle, ["product-title"], {
+  tags: ["product-title"],
+});
+
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const product = await getCachedProductTitle(Number(params.id));
+  return {
+    title: product?.title,
+  };
+}
+
 export default async function ProductDetail({
   params,
 }: {
@@ -49,12 +79,17 @@ export default async function ProductDetail({
     return notFound();
   }
   //물품 가져오고
-  const product = await getProduct(id);
+  const product = await getCachedProduct(id);
 
   //만약 물품이 없으면 낫파운드.
   if (!product) {
     return notFound();
   }
+
+  const revalidate = async () => {
+    "use server";
+    revalidateTag("product-title");
+  };
 
   //이 물건이 접속한 사용자의 물건인지 확인하기
   //Boolean이니까 필요한 경우 true, false 값으로 조절하자.
@@ -96,9 +131,11 @@ export default async function ProductDetail({
           {formatToWon(product.price)}원
         </span>
         {isOwner ? (
-          <button className="bg-red-500 px-5 py-2.5 rounded-md text-white font-semibold">
-            Delete product
-          </button>
+          <form action={revalidate}>
+            <button className="bg-red-500 px-5 py-2.5 rounded-md text-white font-semibold">
+              Revalidate title cache
+            </button>
+          </form>
         ) : null}
         <Link
           className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold"
