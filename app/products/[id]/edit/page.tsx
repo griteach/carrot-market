@@ -93,6 +93,7 @@ export default function EditPage({ params }: { params: { id: string } }) {
     //이제 formData의 photo를 파일이 아니라 string으로 바꿔준다.
     //database에 올릴땐 파일자체가 아니라 CF에 업로드되어있는 그 url string만 올려야지.
     formData.set("photo", photoUrl);
+    formData.append("productId", params.id);
 
     return updateProduct(_, formData);
     //call uploadProduct.
@@ -101,7 +102,7 @@ export default function EditPage({ params }: { params: { id: string } }) {
   const [state, action] = useFormState(interceptAction, null);
 
   return (
-    <div>
+    <div className="p-4">
       <form action={action} className="flex flex-col gap-5 p-5">
         <label
           htmlFor="photo"

@@ -6,17 +6,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { unstable_cache as nextCache, revalidateTag } from "next/cache";
-import { getProduct, getProductTitle } from "@/lib/db_actions";
-
-export const getCachedProduct = nextCache(getProduct, ["product-detail"], {
-  tags: ["product-detail"],
-});
-const getCachedProductTitle = nextCache(getProductTitle, ["product-title"], {
-  tags: ["product-title"],
-});
+import { getProduct, getProductCache, getProductTitle } from "@/lib/db_actions";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
-  const product = await getCachedProductTitle(Number(params.id));
+  const id = Number(params.id);
+  if (isNaN(id)) {
+    //isNan = is not a number 자바스크립트 함수
+    return notFound();
+  }
+  const product = await getProductCache(id);
   return {
     title: product?.title,
   };
@@ -34,7 +32,7 @@ export default async function ProductDetail({
     return notFound();
   }
   //물품 가져오고
-  const product = await getCachedProduct(id);
+  const product = await getProductCache(id);
 
   //만약 물품이 없으면 낫파운드.
   if (!product) {
@@ -51,7 +49,7 @@ export default async function ProductDetail({
   //Boolean이니까 필요한 경우 true, false 값으로 조절하자.
   const isOwner = await getIsOwner(product.userId);
   return (
-    <div>
+    <div className="p-6">
       <div className="relative aspect-square">
         <Image
           fill

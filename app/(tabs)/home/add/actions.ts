@@ -4,7 +4,7 @@ import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { redirect } from "next/navigation";
 import { productSchema } from "./schema";
-
+import { unstable_cache as nextCache, revalidateTag } from "next/cache";
 //_:any는 form의 state를 받아오는것 because we are using 'useStateForm'
 //formData:FormData 는 원래 form의 데이터를 받아오는 것. form안에 name을 갖고 있는 요소들로부터 가져온 데이터
 export async function uploadProduct(_: any, formData: FormData) {
@@ -37,6 +37,8 @@ export async function uploadProduct(_: any, formData: FormData) {
           id: true,
         },
       });
+      revalidateTag("home-products");
+
       redirect(`/products/${product.id}`);
     }
   }

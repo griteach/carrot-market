@@ -1,14 +1,14 @@
-export default function HomeLayout({
+import Nav from "@/components/product-nav";
+
+export default function ProductPageLayout({
   children,
-  modal,
 }: {
   children: React.ReactNode;
-  modal: React.ReactNode;
 }) {
   return (
     <div className="bg-neutral-900 text-white max-w-screen-md mx-auto">
+      <Nav />
       {children}
-      {modal}
     </div>
   );
 }
