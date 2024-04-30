@@ -1,40 +1,23 @@
 import db from "@/lib/db";
-import getSession from "@/lib/session";
+import getSession, { getIsOwner } from "@/lib/session";
 import { formatToWon } from "@/lib/utils";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { unstable_cache as nextCache, revalidateTag } from "next/cache";
+import { getProduct, getProductCache, getProductTitle } from "@/lib/db_actions";
 
-//해당 물품목록이 현재 접속한 사용자의 것이라면 구매할 수 없겠지
-//또는 에디트 버튼이 나와야겠지
-//따라서 현재 물품 등록자와 현재 접속한 사람이 같은 사람인지 구분해야한다.
-async function getIsOwner(userId: number) {
-  //세션을 불러와서 아이디를 꺼낼거야.
-  const session = await getSession();
-  if (session.id) {
-    return session.id === userId; //세션 아이디와 물건의 유저 아이디가 같다면 true
-  } else {
-    return false; //아니면 당연히 false
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const id = Number(params.id);
+  if (isNaN(id)) {
+    //isNan = is not a number 자바스크립트 함수
+    return notFound();
   }
-}
-
-async function getProduct(id: number) {
-  const product = await db.product.findUnique({
-    where: {
-      id,
-    },
-    //include를 사용해서 product의 유저를 포함하여 가져오자.
-    include: {
-      user: {
-        select: {
-          username: true,
-          avatar: true,
-        },
-      },
-    },
-  });
-  return product;
+  const product = await getProductCache(id);
+  return {
+    title: product?.title,
+  };
 }
 
 export default async function ProductDetail({
@@ -49,18 +32,24 @@ export default async function ProductDetail({
     return notFound();
   }
   //물품 가져오고
-  const product = await getProduct(id);
+  const product = await getProductCache(id);
 
   //만약 물품이 없으면 낫파운드.
   if (!product) {
     return notFound();
   }
 
+  const revalidate = async () => {
+    "use server";
+    revalidateTag("product-title");
+    revalidateTag("product-detail");
+  };
+
   //이 물건이 접속한 사용자의 물건인지 확인하기
   //Boolean이니까 필요한 경우 true, false 값으로 조절하자.
   const isOwner = await getIsOwner(product.userId);
   return (
-    <div>
+    <div className="p-6">
       <div className="relative aspect-square">
         <Image
           fill
@@ -96,10 +85,18 @@ export default async function ProductDetail({
           {formatToWon(product.price)}원
         </span>
         {isOwner ? (
-          <button className="bg-red-500 px-5 py-2.5 rounded-md text-white font-semibold">
-            Delete product
-          </button>
+          <form action={revalidate}>
+            <button className="bg-red-500 px-5 py-2.5 rounded-md text-white font-semibold">
+              Revalidate
+            </button>
+          </form>
         ) : null}
+        <Link
+          href={`/products/${id}/edit`}
+          className="bg-green-500 px-5 py-2.5 rounded-md text-white font-semibold"
+        >
+          edit
+        </Link>
         <Link
           className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold"
           href={``}
@@ -109,4 +106,12 @@ export default async function ProductDetail({
       </div>
     </div>
   );
+}
+export async function generateStaticParams() {
+  const products = await db.product.findMany({
+    select: {
+      id: true,
+    },
+  });
+  return products.map((product) => ({ id: product.id + "" }));
 }
