@@ -1,23 +1,34 @@
 "use client";
 
-import Button from "@/components/button";
-import Input from "@/components/input";
-import { PhotoIcon } from "@heroicons/react/24/solid";
-import { getUploadUrl, uploadProduct } from "./actions";
-import { useState } from "react";
+import { updateProduct } from "./actions";
+import { useEffect, useState } from "react";
+import { getUploadUrl } from "@/app/(tabs)/home/add/actions";
 import { useFormState } from "react-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ProductType, productSchema } from "./schema";
+import Input from "@/components/input";
+import Button from "@/components/button";
+import { PhotoIcon } from "@heroicons/react/24/solid";
+import { getProduct, getProductCache } from "@/lib/db_actions";
 
-export default function AddProduct() {
+export default function EditPage({ params }: { params: { id: string } }) {
   const [preview, setPreview] = useState("");
   const [uploadUrl, setUploadUrl] = useState("");
   const [photoId, setPhotoId] = useState("");
-  //react-hook-form with zod
-  const { register, handleSubmit } = useForm<ProductType>({
-    resolver: zodResolver(productSchema),
-  });
+
+  useEffect(() => {
+    async function getPhotoByProduct(id: number) {
+      try {
+        const result = await getProductCache(id);
+        if (result?.photo) {
+          setPreview(`${result.photo}/public`);
+        } else {
+          setPreview("");
+        }
+      } catch (error) {
+        console.log("Failed to fetch data:", error);
+      }
+    }
+    getPhotoByProduct(Number(params.id));
+  }, [params.id]);
 
   const onImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     //target에서 files(이미지)를 가져와서 preview해 주는 코드
@@ -83,7 +94,7 @@ export default function AddProduct() {
     //database에 올릴땐 파일자체가 아니라 CF에 업로드되어있는 그 url string만 올려야지.
     formData.set("photo", photoUrl);
 
-    return uploadProduct(_, formData);
+    return updateProduct(_, formData);
     //call uploadProduct.
   };
 
@@ -91,7 +102,6 @@ export default function AddProduct() {
 
   return (
     <div>
-      {/* onSubmit에서 onValid는 validation이 끝난 데이터로 호출이 된다. */}
       <form action={action} className="flex flex-col gap-5 p-5">
         <label
           htmlFor="photo"
@@ -138,7 +148,7 @@ export default function AddProduct() {
           type="text"
           errors={state?.fieldErrors.description}
         />
-        <Button text="작성완료" />
+        <Button text="수정하기" />
         <div className="h-48">ddd</div>
       </form>
     </div>
