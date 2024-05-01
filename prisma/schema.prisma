@@ -17,8 +17,11 @@ model User {
   phone      String?    @unique
   github_id  String?    @unique
   avatar     String?
-  SMSToken   SMSToken[]
-  Product    Product[]
+  tokens     SMSToken[]
+  products   Product[]
+  posts      Post[]
+  comments   Comment[]
+  Like       Like[]
 }
 
 model SMSToken {
@@ -39,6 +42,46 @@ model Product {
   description String
   photo       String
 
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  title       String
+  description String?
+  views       Int       @default(0)
+  comments    Comment[]
+  likes       Like[]
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  payload    String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId     Int
+}
+
+model Like {
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId     Int
+  postId     Int
+
+  //composite ID ??
+  //like는 좋아요는 한 번 만 가능하다.
+  //a라는 아이디로 x라는 포스트에 좋아요를 했다면
+  //a와 x를 합치면 유니크한 아이디가 된다.
+  //다른 유저와, 또는 다른 포스트와 중복될 일이 없다는 거지
+  @@id(name: "id", [userId, postId])
 }
