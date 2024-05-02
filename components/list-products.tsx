@@ -22,9 +22,11 @@ export default function ListProducts({
       <div className="relative size-28 rounded-md overflow-hidden">
         <Image
           fill
+          sizes="100"
           src={`${photo}/witdh=100,height=100`}
           alt={title}
           className="object-cover"
+          priority
         />
       </div>
       <div className="flex flex-col gap-1 *:text-white">
