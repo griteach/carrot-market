@@ -1,12 +1,19 @@
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { formatToTimeAgo } from "@/lib/utils";
-import { EyeIcon, HandThumbUpIcon } from "@heroicons/react/24/solid";
-import { HandThumbUpIcon as OutlineHandThumbUpIcon } from "@heroicons/react/24/outline";
+import { EyeIcon } from "@heroicons/react/24/solid";
+
 import { unstable_cache as nextCache, revalidateTag } from "next/cache";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import LikeButton from "@/components/like-button";
+import Comments from "@/components/comments";
+import { Suspense, useOptimistic } from "react";
+import CommentInput from "@/components/comment-input";
+import CommentButton from "@/components/comment-button";
+import Input from "@/components/input";
+import { uploadComment } from "./actions";
+import { useFormState } from "react-dom";
 
 async function getPost(id: number) {
   try {
@@ -26,6 +33,20 @@ async function getPost(id: number) {
             avatar: true,
           },
         },
+        comments: {
+          select: {
+            id: true,
+            payload: true, //comment string
+            userId: true, //userid of author
+            created_at: true,
+            user: {
+              select: {
+                avatar: true, //avatar of author
+                username: true, //username of author
+              },
+            },
+          },
+        },
         _count: {
           select: {
             comments: true,
@@ -33,6 +54,8 @@ async function getPost(id: number) {
         },
       },
     });
+    console.log("getPost by ID : ", id);
+    console.log(post.comments);
     return post;
   } catch (e) {
     return null;
@@ -82,21 +105,31 @@ export default async function PostDetail({
     return notFound();
   }
   const post = await getCachedPost(id);
+
   if (!post) {
     return notFound();
   }
+  const post_user = post.user;
+  const post_comments = post.comments;
 
   const { likeCount, isLiked } = await getCachedLikeStatus(id);
+
+  const session = await getSession();
+
   return (
     <div className="p-5 text-white">
       <div className="flex items-center gap-2 mb-2">
-        <Image
-          width={28}
-          height={28}
-          className="size-7 rounded-full"
-          src={post.user.avatar!}
-          alt={post.user.username}
-        />
+        {post.user.avatar ? (
+          <Image
+            width={28}
+            height={28}
+            className="size-7 rounded-full"
+            src={post.user.avatar}
+            alt={post.user.username}
+          />
+        ) : (
+          <div className="rounded-full bg-teal-500 size-8" />
+        )}
         <div>
           <span className="text-sm font-semibold">{post.user.username}</span>
           <div className="text-xs">
@@ -114,6 +147,12 @@ export default async function PostDetail({
 
         <LikeButton isLiked={isLiked} likeCount={likeCount} postId={id} />
       </div>
+      <CommentInput
+        id={id}
+        sessionId={session.id!}
+        comments={post_comments}
+        user={post_user}
+      />
     </div>
   );
 }
