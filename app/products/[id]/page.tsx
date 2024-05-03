@@ -91,12 +91,14 @@ export default async function ProductDetail({
             </button>
           </form>
         ) : null}
-        <Link
-          href={`/products/${id}/edit`}
-          className="bg-green-500 px-5 py-2.5 rounded-md text-white font-semibold"
-        >
-          edit
-        </Link>
+        {isOwner ? (
+          <Link
+            href={`/products/${id}/edit`}
+            className="bg-green-500 px-5 py-2.5 rounded-md text-white font-semibold"
+          >
+            edit
+          </Link>
+        ) : null}
         <Link
           className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold"
           href={``}
