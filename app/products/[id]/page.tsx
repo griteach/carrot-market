@@ -66,7 +66,7 @@ export default async function ProductDetail({
     });
 
     if (existingRoom) {
-      redirect(`/chat/${existingRoom.id}`);
+      redirect(`/chats/${existingRoom.id}`);
     } else {
       const room = await db.chatRoom.create({
         data: {
@@ -90,7 +90,7 @@ export default async function ProductDetail({
           id: true,
         },
       });
-      redirect(`/chat/${room.id}`);
+      redirect(`/chats/${room.id}`);
     }
   };
 
