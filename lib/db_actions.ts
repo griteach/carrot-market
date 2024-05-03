@@ -15,6 +15,7 @@ export async function getProduct(id: number) {
         select: {
           username: true,
           avatar: true,
+          chat_rooms: true,
         },
       },
     },

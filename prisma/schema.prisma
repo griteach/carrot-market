@@ -21,7 +21,9 @@ model User {
   products   Product[]
   posts      Post[]
   comments   Comment[]
-  Like       Like[]
+  likes      Like[]
+  chat_rooms ChatRoom[]
+  messages   Message[]
 }
 
 model SMSToken {
@@ -42,8 +44,9 @@ model Product {
   description String
   photo       String
 
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   Int
+  ChatRoom ChatRoom[]
 }
 
 model Post {
@@ -84,4 +87,27 @@ model Like {
   //a와 x를 합치면 유니크한 아이디가 된다.
   //다른 유저와, 또는 다른 포스트와 중복될 일이 없다는 거지
   @@id(name: "id", [userId, postId])
+}
+
+model ChatRoom {
+  //ChatRoom의 id는 오토인크리먼트 자동증가 안함. 그리고 보안상의 이유로 string 설정
+  id       String    @id @default(cuid())
+  users    User[]
+  messages Message[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  Int
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  payload    String
+  user       User     @relation(fields: [userId], references: [id])
+  room       ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  chatRoomId String
+  userId     Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }

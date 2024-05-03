@@ -4,7 +4,7 @@ import { formatToWon } from "@/lib/utils";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { unstable_cache as nextCache, revalidateTag } from "next/cache";
 import { getProduct, getProductCache, getProductTitle } from "@/lib/db_actions";
 
@@ -43,6 +43,55 @@ export default async function ProductDetail({
     "use server";
     revalidateTag("product-title");
     revalidateTag("product-detail");
+  };
+
+  const createChatRoom = async () => {
+    "use server";
+
+    const session = await getSession();
+
+    const existingRoom = await db.chatRoom.findFirst({
+      where: {
+        users: {
+          every: {
+            id: {
+              in: [product.userId, session.id!],
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (existingRoom) {
+      redirect(`/chat/${existingRoom.id}`);
+    } else {
+      const room = await db.chatRoom.create({
+        data: {
+          users: {
+            connect: [
+              {
+                id: product.userId,
+              },
+              {
+                id: session.id,
+              },
+            ],
+          },
+          product: {
+            connect: {
+              id: product.id,
+            },
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+      redirect(`/chat/${room.id}`);
+    }
   };
 
   //이 물건이 접속한 사용자의 물건인지 확인하기
@@ -99,12 +148,11 @@ export default async function ProductDetail({
             edit
           </Link>
         ) : null}
-        <Link
-          className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold"
-          href={``}
-        >
-          채팅하기
-        </Link>
+        <form action={createChatRoom}>
+          <button className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold">
+            채팅하기
+          </button>
+        </form>
       </div>
     </div>
   );
