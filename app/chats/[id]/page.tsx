@@ -27,6 +27,20 @@ async function getRoom(id: string) {
   return room;
 }
 
+async function getUserInfo() {
+  const session = await getSession();
+  const user = await db.user.findUnique({
+    where: {
+      id: session.id,
+    },
+    select: {
+      avatar: true,
+      username: true,
+    },
+  });
+  return user;
+}
+
 async function getMessage(chatRoomId: string) {
   const messages = await db.message.findMany({
     where: {
@@ -54,9 +68,21 @@ export default async function ChatRoom({ params }: { params: { id: string } }) {
   if (!room) {
     return notFound();
   }
+
+  const user = await getUserInfo();
+  if (!user) {
+    return notFound();
+  }
+
   const initialMessages = await getMessage(params.id);
   const session = await getSession();
   return (
-    <ChatMessagesList userId={session.id!} initialMessages={initialMessages} />
+    <ChatMessagesList
+      chatRoomId={params.id}
+      userId={session.id!}
+      username={user.username}
+      avatar={user.avatar!}
+      initialMessages={initialMessages}
+    />
   );
 }
