@@ -11,7 +11,6 @@ const config: Config = {
       fontFamily: {
         roboto: "var(--roboto-text)",
         rubik: "var(--rubik-text)",
-        gangwonbold: "var(--gangwonbold-text)",
       },
     },
   },

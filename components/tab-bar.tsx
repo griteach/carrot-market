@@ -20,8 +20,11 @@ export default function TabBar() {
   const pathname = usePathname();
 
   return (
-    <div className="fixed bottom-0 w-full mx-auto max-w-screen-md grid grid-cols-5 border-neutral-600 border-t px-5 py-3 *:text-white bg-neutral-800">
-      <Link href="/home" className="flex flex-col items-center gap-px">
+    <div className="fixed bottom-0 w-full mx-auto max-w-screen-md grid grid-cols-5 border-neutral-600 border-t px-5 py-3 *:text-white bg-neutral-800 ">
+      <Link
+        href="/home"
+        className="flex flex-col items-center gap-px hover:scale-110 transition-transform"
+      >
         {pathname === "/home" ? (
           <SolidHomeIcon className="size-7" />
         ) : (
@@ -29,7 +32,10 @@ export default function TabBar() {
         )}
         <span>홈</span>
       </Link>
-      <Link href="/life" className="flex flex-col items-center gap-px">
+      <Link
+        href="/life"
+        className="flex flex-col items-center gap-px hover:scale-110 transition-transform"
+      >
         {pathname === "/life" ? (
           <SolidNewspaperIcon className="size-7" />
         ) : (
@@ -37,7 +43,10 @@ export default function TabBar() {
         )}
         <span>동네생활</span>
       </Link>
-      <Link href="/chat" className="flex flex-col items-center gap-px">
+      <Link
+        href="/chat"
+        className="flex flex-col items-center gap-px hover:scale-110 transition-transform"
+      >
         {pathname === "/chat" ? (
           <SolidChatIcon className="size-7" />
         ) : (
@@ -45,7 +54,10 @@ export default function TabBar() {
         )}
         <span>채팅</span>
       </Link>
-      <Link href="/live" className="flex flex-col items-center gap-px">
+      <Link
+        href="/live"
+        className="flex flex-col items-center gap-px hover:scale-110 transition-transform"
+      >
         {pathname === "/live" ? (
           <SolidVideoCameraIcon className="size-7" />
         ) : (
@@ -53,7 +65,10 @@ export default function TabBar() {
         )}
         <span>쇼핑</span>
       </Link>
-      <Link href="/profile" className="flex flex-col items-center gap-px">
+      <Link
+        href="/profile"
+        className="flex flex-col items-center gap-px hover:scale-110 transition-transform"
+      >
         {pathname === "/profile" ? (
           <SolidUserIcon className="size-7" />
         ) : (
