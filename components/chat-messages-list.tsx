@@ -1,9 +1,11 @@
 "use client";
+import { markMessageAsRead, saveMessage } from "@/app/chats/[id]/actions";
 import { InitialChatMessages } from "@/app/chats/[id]/page";
+import db from "@/lib/db";
 import { formatToTimeAgo } from "@/lib/utils";
 import { RealtimeChannel, createClient } from "@supabase/supabase-js";
 import Image from "next/image";
-import { SyntheticEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ChatMessageListProps {
   initialMessages: InitialChatMessages;
@@ -33,7 +35,7 @@ export default function ChatMessagesList({
     } = event;
     setMessage(value);
   };
-  const onInputSubmit = (event: React.FormEvent) => {
+  const onInputSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setMessages((prevMsg) => [
       ...prevMsg,
@@ -45,6 +47,7 @@ export default function ChatMessagesList({
           avatar,
           username,
         },
+        isRead: false,
         userId: userId,
       },
     ]);
@@ -56,15 +59,20 @@ export default function ChatMessagesList({
         payload: message,
         created_at: new Date(),
         userId,
+        isRead: false,
         user: {
           username,
           avatar,
         },
       },
     });
+    await saveMessage(message, chatRoomId);
     setMessage("");
   };
   useEffect(() => {
+    //
+
+    //supabase connect
     const client = createClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY);
     channel.current = client.channel(`room-${chatRoomId}`);
     channel.current
@@ -115,15 +123,20 @@ export default function ChatMessagesList({
           </div>
         </div>
       ))}
-      <form onSubmit={onInputSubmit}>
+      <form
+        onSubmit={onInputSubmit}
+        className="w-full p-4 flex justify-center gap-4"
+      >
         <input
           type="text"
           placeholder="대화를 입력해 주세요."
           onChange={onInputChange}
           value={message}
-          className="text-black"
+          className="text-black w-3/4"
         />
-        <button>보내기</button>
+        <button className="btn btn-active bg-orange-400 text-white">
+          보내기
+        </button>
       </form>
     </div>
   );
