@@ -6,7 +6,15 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {},
+  theme: {
+    extend: {
+      fontFamily: {
+        roboto: "var(--roboto-text)",
+        rubik: "var(--rubik-text)",
+        gangwonbold: "var(--gangwonbold-text)",
+      },
+    },
+  },
   plugins: [require("daisyui"), require("@tailwindcss/forms")],
 };
 export default config;
