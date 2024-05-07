@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
 import { Roboto, Rubik_Scribble } from "next/font/google";
-import localFont from "next/font/local";
 import "./globals.css";
-
-const gangwonbold = localFont({
-  src: "./gangwonbold.otf",
-  variable: "--gangwonbold-text",
-});
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -34,11 +28,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log(gangwonbold);
   return (
     <html lang="en">
       <body
-        className={`${roboto.variable} ${rubik.variable} ${gangwonbold.variable}  bg-neutral-900 text-white max-w-screen-sm  mx-auto`}
+        className={`${roboto.variable} ${rubik.variable}  bg-neutral-900 text-white max-w-screen-sm  mx-auto`}
       >
         {children}
       </body>
