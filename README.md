@@ -48,8 +48,20 @@
 
 ## Edit page
 
--[x] 사용자 이름 변경하기 -[x] 사용자 비밀번호 변경하기 -[x] 사용자 아바타 변경하기 -[x] username password phone avatar -[x] layout 적용, 뒤로가기 버튼
+- 사용자 이름 변경하기
+- 사용자 비밀번호 변경하기
+- 사용자 아바타 변경하기
+- username password phone avatar
+- layout 적용, 뒤로가기 버튼
+
+- 비밀번호가 없을 때.... 조치 요망
 
 ## Purchase, Sales History, Reservation Page
 
--[] 다 똑같은데, 불러오는 장소만 다르게 하자고
+- 일단, model Product에 물품의 상태를 표시해 줘야 함.
+  - 판매중 (forsale)
+    - 이 때만, 예약을 할 수 있음
+  - 예약중 (reservation)
+    - 예약자 표시
+  - 판매완료 (sold)
+    - buyer, seller 표시
