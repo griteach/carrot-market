@@ -14,16 +14,16 @@ export default async function SalePage() {
         <hr />
         <div className="flex flex-col gap-3 mt-4 px-4">
           {products.map((product) => (
-            <div key={product.id} className="">
-              <div className="grid grid-cols-5 gap-2">
-                <div className="relative flex justify-center items-center bg-red-200">
+            <div key={product.id}>
+              <div className="grid grid-cols-5  gap-4 mb-2 p-2 rounded-lg shadow-md">
+                <div className="relative w-20 h-20 flex justify-center items-center ">
                   <Image
-                    fill
-                    sizes="100"
-                    src={`${product.photo}/witdh=100,height=100`}
+                    layout="fill"
+                    objectFit="cover"
+                    src={`${product.photo}/public`}
                     alt={product.title}
-                    className="object-cover"
                     priority
+                    className="rounded-lg"
                   />
                 </div>
                 <div className="flex flex-col col-span-4">

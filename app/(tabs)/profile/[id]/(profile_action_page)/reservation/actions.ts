@@ -3,11 +3,12 @@
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { unstable_cache as nextCache, revalidateTag } from "next/cache";
-export async function getPurchase() {
+export async function getReservation() {
   const session = await getSession();
   const products = await db.product?.findMany({
     where: {
       buyerUserId: session.id,
+      status: "reservation",
     },
 
     //하나만 가져오기 (1개겠지? 숫자에 따라서 가져옴)
@@ -18,15 +19,15 @@ export async function getPurchase() {
       created_at: "desc",
     },
   });
-  console.log("getPurchase: ", products);
+  console.log("getReservation: ", products);
 
   return products;
 }
 
-export const getPurchaseProductCache = nextCache(
-  getPurchase,
-  ["product-purchase"],
+export const getReservationProductCache = nextCache(
+  getReservation,
+  ["product-reservation"],
   {
-    tags: ["product-purchase"],
+    tags: ["product-reservation"],
   }
 );

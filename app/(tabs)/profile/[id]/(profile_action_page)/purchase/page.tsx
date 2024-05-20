@@ -6,7 +6,7 @@ import { revalidateTag } from "next/cache";
 
 export default async function PurchasePage() {
   const products = await getPurchaseProductCache();
-  revalidateTag("product-all");
+  revalidateTag("product-purchase");
   //일단
   return (
     <div className="p-6 h-screen flex flex-col gap-4 items-center text-black">
