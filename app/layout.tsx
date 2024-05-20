@@ -9,12 +9,6 @@ const roboto = Roboto({
   variable: "--roboto-text",
 });
 
-const rubik = Rubik_Scribble({
-  subsets: ["latin"],
-  weight: "400",
-  style: "normal",
-  variable: "--rubik-text",
-});
 export const metadata: Metadata = {
   title: {
     template: "%s | Carrot market",
@@ -31,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${roboto.variable} ${rubik.variable}  bg-neutral-900 text-white max-w-screen-sm  mx-auto`}
+        className={`${roboto.variable} bg-neutral-900 text-white max-w-screen-md  mx-auto`}
       >
         {children}
       </body>

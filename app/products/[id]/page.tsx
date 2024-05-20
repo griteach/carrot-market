@@ -7,6 +7,14 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { unstable_cache as nextCache, revalidateTag } from "next/cache";
 import { getProduct, getProductCache, getProductTitle } from "@/lib/db_actions";
+import Button from "@/components/button";
+
+interface ChatRoomResponse {
+  id: string;
+  users: {
+    id: number;
+  }[];
+}
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const id = Number(params.id);
@@ -18,6 +26,19 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   return {
     title: product?.title,
   };
+}
+
+function findRoomWithBothUsers(
+  chatRooms: ChatRoomResponse[],
+  sellerId: number,
+  buyerId: number
+) {
+  return chatRooms.filter((room) => {
+    // room.users 배열에서 판매자 ID와 구매자 ID가 모두 존재하는지 확인
+    const hasSeller = room.users.some((user) => user.id === sellerId);
+    const hasBuyer = room.users.some((user) => user.id === buyerId);
+    return hasSeller && hasBuyer;
+  });
 }
 
 export default async function ProductDetail({
@@ -50,23 +71,16 @@ export default async function ProductDetail({
 
     const session = await getSession();
 
-    const existingRoom = await db.chatRoom.findFirst({
-      where: {
-        users: {
-          every: {
-            id: {
-              in: [product.userId, session.id!],
-            },
-          },
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
+    const currentRoom = product.ChatRoom;
+    const isRoomExist = findRoomWithBothUsers(
+      currentRoom,
+      product.userId,
+      +session.id!
+    );
 
-    if (existingRoom) {
-      redirect(`/chats/${existingRoom.id}`);
+    if (isRoomExist.length > 0) {
+      // redirect(`/chats/${isRoomExist[0].id}`);
+      console.log("room is exist");
     } else {
       const room = await db.chatRoom.create({
         data: {
@@ -149,9 +163,10 @@ export default async function ProductDetail({
           </Link>
         ) : null}
         <form action={createChatRoom}>
-          <button className="bg-orange-500 px-5 py-2.5 rounded-md text-white font-semibold">
-            채팅하기
-          </button>
+          <Button
+            text="채팅하기"
+            isForsale={product.status === "forsale"}
+          ></Button>
         </form>
       </div>
     </div>

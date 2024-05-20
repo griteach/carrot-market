@@ -1,15 +1,15 @@
 "use client";
 
 import { InitialProducts } from "@/app/(tabs)/home/page";
-import ListProducts from "./list-products";
+import ItemsList from "./items-list";
 import { useEffect, useRef, useState } from "react";
 import { getMoreProducts } from "@/app/(tabs)/home/actions";
 
-interface ProductListProps {
+export interface ProductListProps {
   initialProducts: InitialProducts;
 }
 
-export default function ProductList({ initialProducts }: ProductListProps) {
+export default function HomeProductList({ initialProducts }: ProductListProps) {
   const [products, setProducts] = useState(initialProducts);
   const [isLoading, setIsLoading] = useState(false);
   const [isLastPage, setIsLastPage] = useState(false);
@@ -59,9 +59,9 @@ export default function ProductList({ initialProducts }: ProductListProps) {
 
   const onLoadMoreClick = async () => {};
   return (
-    <div className="p-5 flex flex-col gap-5">
+    <div className="p-5 flex flex-col gap-5 ">
       {products.map((product) => (
-        <ListProducts key={product.id} {...product} />
+        <ItemsList key={product.id} {...product} />
       ))}
 
       {/* {!isLastPage ? (
