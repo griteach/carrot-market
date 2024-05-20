@@ -239,34 +239,33 @@ export default function ChatMessagesList({
           </div>
         ))}
         <hr />
-        <div className="w-full px-6 py-2 bg-slate-200 rounded-md flex justify-between items-center text-black">
+
+        {currentReservation === "sold" ? (
           <CreateReview productId={productId} />
-        </div>
+        ) : null}
         <div ref={messagesEndRef} />
-        <form
-          onSubmit={onInputSubmit}
-          className=" w-full p-4 flex justify-center gap-4 z-2"
-        >
-          <input
-            type="text"
-            placeholder={
-              currentReservation === "sold"
-                ? "구매완료 된 품목입니다."
-                : "대화를 입력해 주세요."
-            }
-            disabled={currentReservation === "sold"}
-            onChange={onInputChange}
-            value={message}
-            className="text-black w-3/4"
-            ref={inputRef}
-          />
-          <button
-            className="btn btn-active bg-orange-400 text-white"
-            disabled={currentReservation === "sold"}
+        {currentReservation === "sold" ? null : (
+          <form
+            onSubmit={onInputSubmit}
+            className=" w-full p-4 flex justify-center gap-4 z-2"
           >
-            보내기
-          </button>
-        </form>
+            <input
+              type="text"
+              placeholder={
+                currentReservation === "sold"
+                  ? "구매완료 된 품목입니다."
+                  : "대화를 입력해 주세요."
+              }
+              onChange={onInputChange}
+              value={message}
+              className="text-black w-3/4"
+              ref={inputRef}
+            />
+            <button className="btn btn-active bg-orange-400 text-white">
+              보내기
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
