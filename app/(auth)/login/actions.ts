@@ -64,6 +64,7 @@ export const login = async (prevState: any, formData: FormData) => {
     console.log(ok);
     if (ok) {
       await loginSession(user?.id!);
+      console.log("User Id:", user?.id);
       redirect("/profile");
     } else {
       return {

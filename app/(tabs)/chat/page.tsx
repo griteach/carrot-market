@@ -1,72 +1,18 @@
-import db from "@/lib/db";
-import getSession from "@/lib/session";
 import { formatToTimeAgo } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { countUnreadMessages, getAllChatRoomCache } from "./actions";
+import { revalidateTag } from "next/cache";
+import { useEffect } from "react";
 
 //모든 채팅방 가져오기
-async function getAllChatRoom(id: number | undefined) {
-  const rooms = await db.chatRoom.findMany({
-    where: {
-      users: {
-        some: {
-          id: {
-            in: [id!],
-          },
-        },
-      },
-    },
-    include: {
-      users: {
-        where: {
-          NOT: {
-            id,
-          },
-        },
-      },
-      product: {
-        select: {
-          title: true,
-          photo: true,
-        },
-      },
-      messages: {
-        select: {
-          payload: true,
-          id: true,
-          created_at: true,
-        },
-        orderBy: {
-          created_at: "desc",
-        },
-      },
-    },
-  });
-
-  return rooms;
-}
-
-//안읽은 메세지 갯수 세기
-//나의 메세지 제외, 다른 사람의 메세지만 세기
-async function countUnreadMessages(id: number | undefined) {
-  const unreadCount = await db.message.count({
-    where: {
-      userId: {
-        not: id,
-      },
-      isRead: false,
-    },
-  });
-
-  return unreadCount;
-}
 
 export default async function Chat() {
-  const session = await getSession();
+  const rooms = await getAllChatRoomCache();
 
-  const rooms = await getAllChatRoom(session.id);
+  const unReadCount = await countUnreadMessages();
 
-  const unReadCount = await countUnreadMessages(session.id);
+  revalidateTag("chatRoom-all");
 
   return (
     <div className="py-12 px-4 flex flex-col h-screen justify-start items-center ">
@@ -79,19 +25,29 @@ export default async function Chat() {
           <div className="px-3 py-2 w-full flex justify-center items-center rounded-xl">
             <div className="flex justify-between w-full py-4 px-4 rounded-xl bg-base-100 shadow-xl">
               <div className="flex justify-center items-center gap-4">
-                {room.users[0]?.avatar ? (
+                <div>
                   <Image
-                    src={`${room.users[0].avatar}`}
-                    alt={room.users[0].username}
-                    width={40}
-                    height={40}
+                    src={`${room.product.photo}/public`}
+                    width={50}
+                    height={50}
+                    alt={room.product.title}
                   />
-                ) : (
-                  <div className="size-8 rounded-full bg-slate-400"></div>
-                )}
+                </div>
                 <div className=" flex flex-col gap-1">
-                  <div className="text-xl text-white">
-                    {room.users[0].username}
+                  <div className="flex gap-3 py-1 pl-1 ">
+                    {room.users[0]?.avatar ? (
+                      <Image
+                        src={`${room.users[0].avatar}`}
+                        alt={room.users[0].username}
+                        width={30}
+                        height={30}
+                      />
+                    ) : (
+                      <div className="size-8 rounded-full bg-slate-400"></div>
+                    )}
+                    <span className="text-xl text-white">
+                      {room.users[0].username}
+                    </span>
                   </div>
                   <div className="text-teal-500 text-sm">
                     {room.messages[0]?.payload ?? null}

@@ -1,53 +1,21 @@
-import ListProducts from "@/components/list-products";
-import ProductList from "@/components/product-list";
-import db from "@/lib/db";
+import HomeProductList from "@/components/home-product-list";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { Prisma } from "@prisma/client";
-import { unstable_cache as nextCache, revalidatePath } from "next/cache";
 import Link from "next/link";
+import { getAllProductCache, getMoreProducts } from "./actions";
 
-const getCachedProducts = nextCache(getInitialProducts, ["home-products"], {
-  tags: ["home-products"],
-});
-
-async function getInitialProducts() {
-  console.log("hit");
-  const products = await db.product.findMany({
-    select: {
-      title: true,
-      price: true,
-      created_at: true,
-      photo: true,
-      id: true,
-    },
-    //하나만 가져오기
-
-    //오름차순, 내림차순 정렬 적용하기
-    orderBy: {
-      created_at: "desc",
-    },
-  });
-  return products;
-}
-
-export type InitialProducts = Prisma.PromiseReturnType<
-  typeof getInitialProducts
->;
+export type InitialProducts = Prisma.PromiseReturnType<typeof getMoreProducts>;
 
 export const metadata = {
   title: "Home",
 };
 
 export default async function Products() {
-  const initialProducts = await getCachedProducts();
+  const initialProducts = await getAllProductCache(0);
 
-  // const revalidate = async () => {
-  //   "use server";
-  //   revalidatePath("/home");
-  // };
   return (
     <div>
-      <ProductList initialProducts={initialProducts} />
+      <HomeProductList initialProducts={initialProducts} />
       {/* <form action={revalidate}>
         <button>Revalidate</button>
       </form> */}

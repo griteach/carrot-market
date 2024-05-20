@@ -35,10 +35,11 @@ export default function Comments({
         <div className="flex items-center gap-2 ">
           {user.avatar ? (
             <Image
-              src={`${user.avatar}/avatar`}
+              src={`${user.avatar}`}
               alt={user.username}
               width={30}
               height={30}
+              className="rounded-full"
             />
           ) : (
             <div className="rounded-full size-8 bg-slate-400"></div>

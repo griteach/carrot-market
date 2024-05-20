@@ -18,6 +18,16 @@ export async function getProduct(id: number) {
           chat_rooms: true,
         },
       },
+      ChatRoom: {
+        select: {
+          id: true,
+          users: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
     },
   });
   return product;
