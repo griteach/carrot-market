@@ -98,3 +98,12 @@
 
 > 배포에 필요한 내용 준비
 > package.json 에서 build 시 prisma generate 함께 진행하도록 변경
+> 배포 완료
+
+# 수정사항
+
+## 작동관련
+
+- revalidate 위치 확인필요. 물품 작성완료 시점에서 revalidate 해줘야지
+- product/[id]에서 상단의 뒤로가기 누르면 home으로 가야 함.
+-
