@@ -6,7 +6,7 @@ export default function HomeLayout({
   modal: React.ReactNode;
 }) {
   return (
-    <div className="bg-neutral-900 text-white max-w-screen-md mx-auto">
+    <div className="bg-neutral-900 text-white max-w-screen-md mx-auto h-screen">
       {children}
       {modal}
     </div>

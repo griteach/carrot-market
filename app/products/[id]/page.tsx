@@ -112,7 +112,7 @@ export default async function ProductDetail({
   //Boolean이니까 필요한 경우 true, false 값으로 조절하자.
   const isOwner = await getIsOwner(product.userId);
   return (
-    <div className="p-6">
+    <div className="p-6 h-screen">
       <div className="relative aspect-square">
         <Image
           fill
@@ -142,7 +142,6 @@ export default async function ProductDetail({
         <h1 className="text-2xl font-semibold">{product.title}</h1>
         <p>{product.description}</p>
       </div>
-      <div className="mb-48">ddd</div>
       <div className="fixed w-full bottom-0 left-0 p-5  bg-neutral-800 flex justify-between items-center">
         <span className="font-semibold text-xl">
           {formatToWon(product.price)}원
