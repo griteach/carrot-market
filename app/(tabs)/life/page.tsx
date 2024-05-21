@@ -32,7 +32,7 @@ export const metadata = {
 export default async function Life() {
   const posts = await getPosts();
   return (
-    <div className="p-5 flex flex-col ">
+    <div className="p-5 flex flex-col h-screen ">
       {posts.map((post) => (
         <Link
           key={post.id}
