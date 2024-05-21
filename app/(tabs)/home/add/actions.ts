@@ -37,7 +37,7 @@ export async function uploadProduct(_: any, formData: FormData) {
           id: true,
         },
       });
-      revalidateTag("home-products");
+      revalidateTag("product-all");
 
       redirect(`/products/${product.id}`);
     }
